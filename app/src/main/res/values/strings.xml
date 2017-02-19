@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Tuling_XiaoaoApp</string>
+    <string name="emptyTips">您还没有填写信息呢...</string>
+    <string name="welcome">我是小奥，很高兴为您服务</string>
+    <string name="netError">服务器挂了呢...</string>
+    <string name="me">文泰</string>
+    <string name="xiaoao">小奥</string>
+    <string name="title">小奥机器人</string>
+    <string name="send">发送</string>
+
+    <string name="choosePhoto">从相册中选择聊天背景</string>
+    <string name="versionName">小奥机器人</string>
+    <string name="versionNum">版本号:1.0</string>
+</resources>
