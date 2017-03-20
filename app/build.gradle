@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.3"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "moe.haruue.tuling_xiaoaoapp"
@@ -28,4 +28,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
     compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.android.support:recyclerview-v7:25.2.0'
+    compile 'org.litepal.android:core:1.5.1'
 }

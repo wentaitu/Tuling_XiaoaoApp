@@ -63,16 +63,13 @@
             android:textSize="18sp" />
     </RelativeLayout>
 
-    <ListView
-        android:id="@+id/id_chat_listView"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/id_chat_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/ly_chat_bottom"
         android:layout_below="@id/ly_chat_title"
-        android:cacheColorHint="#0000"
-        android:divider="@null"
-        android:dividerHeight="5dp"
-        android:scrollbarStyle="outsideOverlay" >
-    </ListView>
+        android:scrollbarStyle="outsideOverlay">
+    </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

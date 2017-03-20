@@ -1,41 +1,33 @@
 package moe.haruue.tuling_xiaoaoapp;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import org.litepal.crud.DataSupport;
+import org.litepal.tablemanager.Connector;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import moe.haruue.tuling_xiaoaoapp.ChatMessage.Type;
-
 public class MainActivity extends AppCompatActivity {
-
-    private Button send;   //发送消息按钮
-
-    private ImageButton tool; //工具按钮
-
-    private ListView mChatView;   //展示消息列表
-
+    private Button send;   //发送消息
+    private ImageButton tool; //工具
+    private RecyclerView rChatView; //消息列表
     private EditText mMsg;  //文本输入
-
-    private List<ChatMessage> mDatas = new ArrayList<>();  //聊天消息集合
-
-    private ChatMessageAdapter mAdapter; //适配器
+    private List<ChatMessage> mDatas = new ArrayList<>();  //消息集合
+    private ChatMessageRecyclerViewAdapter rAdapter; //数据适配器
 
     private Handler mHandler = new Handler()
     {
@@ -43,40 +35,37 @@ public class MainActivity extends AppCompatActivity {
         {
             ChatMessage from = (ChatMessage) msg.obj;
             mDatas.add(from);
-            mAdapter.notifyDataSetChanged();    //刷新界面
-            mChatView.setSelection(mDatas.size() - 1);    //让ListView定位到指定Item的位置
+            rAdapter.notifyDataSetChanged();
+            rChatView.smoothScrollToPosition(mDatas.size() - 1); //定位
         }
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_chatting);
 
-        initView();  //调用初始化方法
+        initView();  //初始化
 
-        mAdapter = new ChatMessageAdapter(this, mDatas);
-        mChatView.setAdapter(mAdapter);
-
-        mChatView.setSelection(mDatas.size() - 1); //ListView定位
+        rAdapter = new ChatMessageRecyclerViewAdapter(mDatas);
+        rChatView.setAdapter(rAdapter);
+        rChatView.smoothScrollToPosition(mDatas.size() - 1);
 
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String msg = mMsg.getText().toString();
-                if (TextUtils.isEmpty(msg))   //判断消息输入是否为空
-                {
+                if (TextUtils.isEmpty(msg)) {   //判断消息输入是否为空
                     Toast.makeText(MainActivity.this, getResources().getString(R.string.emptyTips), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                ChatMessage to = new ChatMessage(Type.OUTPUT, msg);
+                ChatMessage to = new ChatMessage(false, msg);
                 to.setDate(new Date());
                 mDatas.add(to);
 
-                mAdapter.notifyDataSetChanged();
-                mChatView.setSelection(mDatas.size() - 1);
+                rAdapter.notifyDataSetChanged();
+                rChatView.smoothScrollToPosition(mDatas.size() - 1);
 
                 mMsg.setText("");
 
@@ -85,12 +74,10 @@ public class MainActivity extends AppCompatActivity {
                     public void run()
                     {
                         ChatMessage from = null;
-                        try
-                        {
+                        try {
                             from = HttpUtils.sendMsg(msg);
-                        } catch (Exception e)
-                        {
-                            from = new ChatMessage(Type.INPUT, getResources().getString(R.string.netError));
+                        } catch (Exception e) {
+                            from = new ChatMessage(true, getResources().getString(R.string.netError));
                         }
                         Message message = Message.obtain();
                         message.obj = from;
@@ -109,31 +96,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initView()
-    {
+    private void initView() {
         send = (Button) findViewById(R.id.id_chat_send);
         tool = (ImageButton) findViewById(R.id.tool);
-        mChatView = (ListView) findViewById(R.id.id_chat_listView);
+        rChatView = (RecyclerView) findViewById(R.id.id_chat_recyclerView);
+        LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this);
+        rChatView.setLayoutManager(manager);
         mMsg = (EditText) findViewById(R.id.id_chat_msg);
-        mDatas.add(new ChatMessage(Type.INPUT, getResources().getString(R.string.welcome)));  //初始化消息
 
-        SharedPreferences datas = getSharedPreferences("data", MODE_PRIVATE);
-        String json = datas.getString("data", null);  //数据恢复
-        if (json != null) {
-            Gson gson = new Gson();
-            java.lang.reflect.Type type = new TypeToken<List<ChatMessage>>(){}.getType();
-            mDatas = gson.fromJson(json, type);
+        Connector.getDatabase();
+        DataSupport.saveAll(mDatas);
+
+        mDatas.add(new ChatMessage(true, getResources().getString(R.string.welcome)));  //消息初始化
+        if (DataSupport.findAll(ChatMessage.class) != null && DataSupport.findAll(ChatMessage.class).size() > 0) {
+            mDatas = DataSupport.findAll(ChatMessage.class);
         }
-
-    }
-
-    @Override
-    protected void onDestroy() {    //进行数据保存
-        super.onDestroy();
-        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(mDatas);
-        editor.putString("data", json);
-        editor.apply();
     }
 }

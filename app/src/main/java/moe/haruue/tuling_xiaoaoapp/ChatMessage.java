@@ -1,81 +1,54 @@
 package moe.haruue.tuling_xiaoaoapp;
 
-import java.io.Serializable;
+import org.litepal.crud.DataSupport;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ChatMessage implements Serializable {   //序列化后用于存储
-
-	private Type type ; //消息类型
+public class ChatMessage extends DataSupport {
+	private boolean type;
 	private String msg; //消息内容
 	private Date date; //日期
 	private String dateStr; //日期的字符串格式
-	private String name; //发送人
 
-	public enum Type
-	{
-		INPUT, OUTPUT
+	public ChatMessage() {
 	}
 
-	public ChatMessage()
-	{
-	}
-
-	public ChatMessage(Type type, String msg)
-	{
+	public ChatMessage(boolean type, String msg) {
 		super();
 		this.type = type;
 		this.msg = msg;
 		setDate(new Date());
 	}
 
-	public String getDateStr()
-	{
+	public String getDateStr() {
 		return dateStr;
 	}
 
-	public Date getDate()
-	{
+	public Date getDate() {
 		return date;
 	}
 
-	public void setDate(Date date)
-	{
+	public void setDate(Date date) {
 		this.date = date;
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		this.dateStr = df.format(date);
-
 	}
 
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public Type getType()
-	{
+	public boolean getType() {
 		return type;
 	}
 
-	public void setType(Type type)
-	{
+	public void setType(boolean type) {
 		this.type = type;
 	}
 
-	public String getMsg()
-	{
+	public String getMsg() {
 		return msg;
 	}
 
-	public void setMsg(String msg)
-	{
+	public void setMsg(String msg) {
 		this.msg = msg;
 	}
-
 }
